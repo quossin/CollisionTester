@@ -1,0 +1,9 @@
+{
+	"SourceFiles": [
+		"C:\\Users\\Dragon\\Documents\\Unreal Projects\\CollisionTester\\Source\\CollisionTester\\CollisionTester.Build.cs",
+		"C:\\Users\\Dragon\\Documents\\Unreal Projects\\CollisionTester\\Plugins\\CollisionTesterEditor\\Source\\CollisionTesterEditor\\CollisionTesterEditor.Build.cs",
+		"C:\\Users\\Dragon\\Documents\\Unreal Projects\\CollisionTester\\Source\\CollisionTester.Target.cs",
+		"C:\\Users\\Dragon\\Documents\\Unreal Projects\\CollisionTester\\Source\\CollisionTesterEditor.Target.cs"
+	],
+	"EngineVersion": "5.3.2"
+}

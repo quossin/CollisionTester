@@ -81,13 +81,8 @@ void UBaseCollisionTest::DrawHit(class FPrimitiveDrawInterface* PDI, const FHitR
 	DrawSphere(PDI, Hit.Location, FRotator::ZeroRotator, FVector(10), 24, 6, MaterialRenderProxy, SDPG_World);
 }
 
-void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+FCollisionQueryParams UBaseCollisionTest::GetQueryParams(AActor& Owner) const
 {
-	if (CollisionTesterOwner == nullptr) return;
-	if (PDI == nullptr) return;
-	if (CollisionTesterOwner->GetWorld() == nullptr) return;
-
-
 	FCollisionQueryParams QueryParams;
 	QueryParams.bTraceComplex = bTraceComplex;
 	QueryParams.bFindInitialOverlaps = bFindInitialOverlaps;
@@ -95,7 +90,19 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 	QueryParams.bIgnoreTouches = bIgnoreTouches;
 	QueryParams.bSkipNarrowPhase = bSkipNarrowPhase;
 	QueryParams.bTraceIntoSubComponents = bTraceIntoSubComponents;
-	QueryParams.AddIgnoredActor(CollisionTesterOwner);
+	QueryParams.AddIgnoredActor(&Owner);
+
+	return QueryParams;
+}
+
+void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+{
+	if (CollisionTesterOwner == nullptr) return;
+	if (PDI == nullptr) return;
+	if (CollisionTesterOwner->GetWorld() == nullptr) return;
+
+
+	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 
 	FCollisionResponseContainer CollisionResponseContainer;
 	CollisionResponseContainer.SetAllChannels(DefaultResponse);
@@ -153,4 +160,100 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 			PDI->DrawLine(LastHitLoc, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);
 		}
 	}
+}
+
+UObjectTypeListCollisionTestByObjectMode::UObjectTypeListCollisionTestByObjectMode()
+{
+	ObjectTypes.Add(ObjectTypeQuery1);
+}
+
+FCollisionObjectQueryParams UObjectTypeListCollisionTestByObjectMode::GetCollisionObjectQueryParams() const
+{
+	return FCollisionObjectQueryParams(ObjectTypes);
+}
+
+FCollisionObjectQueryParams UAllTypeListCollisionTestByObjectMode::GetCollisionObjectQueryParams() const
+{
+	switch (CollisionTestByObjectMode)
+	{
+	case ECollisionTestByObjectMode::AllObjects:
+		return FCollisionObjectQueryParams(FCollisionQueryFlag::Get().GetAllObjectsQueryFlag());
+	case ECollisionTestByObjectMode::AllStaticObjects:
+		return FCollisionObjectQueryParams(FCollisionQueryFlag::Get().GetAllStaticObjectsQueryFlag());
+	case ECollisionTestByObjectMode::AllDynamicObjects:
+		return FCollisionObjectQueryParams(FCollisionQueryFlag::Get().GetAllDynamicObjectsQueryFlag());
+	}
+
+	return FCollisionObjectQueryParams();
+}
+
+
+void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+{
+	if (CollisionTesterOwner == nullptr) return;
+	if (PDI == nullptr) return;
+	if (CollisionTesterOwner->GetWorld() == nullptr) return;
+	if (CollisionTestByObjectMode == nullptr) return;
+
+	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
+	FCollisionObjectQueryParams CollisionObjectQueryParams = CollisionTestByObjectMode->GetCollisionObjectQueryParams();
+
+
+	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
+	const FVector TraceEnd = TraceStart + CollisionTesterOwner->GetActorForwardVector() * Length;
+
+
+	if (!bMulti)
+	{
+		FHitResult Hit;
+		bool bHasHit = CollisionTesterOwner->GetWorld()->LineTraceSingleByObjectType(Hit, TraceStart, TraceEnd, CollisionObjectQueryParams, QueryParams);
+		if (!bHasHit)
+		{
+			PDI->DrawLine(TraceStart, TraceEnd, FColor::Green, SDPG_Foreground, 1.f);
+		}
+		else
+		{
+			PDI->DrawLine(TraceStart, Hit.Location, FColor::Green, SDPG_Foreground, 1.f);
+			PDI->DrawLine(Hit.Location, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);
+			DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+		}
+	}
+	else
+	{
+		TArray<struct FHitResult> OutHits;
+		CollisionTesterOwner->GetWorld()->LineTraceMultiByObjectType(OutHits, TraceStart, TraceEnd, CollisionObjectQueryParams, QueryParams);
+
+		if (OutHits.Num() == 0)
+		{
+			PDI->DrawLine(TraceStart, TraceEnd, FColor::Green, SDPG_Foreground, 1.f);
+		}
+		else
+		{
+			for (const FHitResult& Hit : OutHits)
+			{
+				if (Hit.bBlockingHit)
+				{
+					DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+				}
+				else
+				{
+					DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialZ->GetRenderProxy());
+				}
+			}
+
+			const FVector& LastHitLoc = OutHits[OutHits.Num() - 1].Location;
+			PDI->DrawLine(TraceStart, LastHitLoc, FColor::Green, SDPG_Foreground, 1.f);
+			PDI->DrawLine(LastHitLoc, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);
+		}
+	}
+}
+
+void UTraceCollsionTestByObjectType::PostInitProperties()
+{
+	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
+	{
+		CollisionTestByObjectMode = NewObject<UObjectTypeListCollisionTestByObjectMode>(this);
+	}
+
+	Super::PostInitProperties();
 }

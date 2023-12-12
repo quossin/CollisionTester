@@ -58,6 +58,32 @@ public:
 	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, class FPrimitiveDrawInterface* PDI) const PURE_VIRTUAL(UBaseCollisionTest::Draw, );
 
 	void DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const class FMaterialRenderProxy* MaterialRenderProxy) const;
+
+	FCollisionQueryParams GetQueryParams(AActor& Owner) const;
+
+	/** Whether we should trace against complex collision */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bTraceComplex = false;
+
+	/** Whether we want to find out initial overlap or not. If true, it will return if this was initial overlap. */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bFindInitialOverlaps = true;
+
+	/** Whether to ignore blocking results. */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bIgnoreBlocks = false;
+
+	/** Whether to ignore touch/overlap results. */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bIgnoreTouches = false;
+
+	/** Whether to skip narrow phase checks (only for overlaps). */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bSkipNarrowPhase = false;
+
+	/** Whether to ignore traces to the cluster union and trace against its children instead. */
+	UPROPERTY(EditInstanceOnly, Category = "Params")
+	bool bTraceIntoSubComponents = false;
 };
 
 USTRUCT(BlueprintType)
@@ -87,36 +113,75 @@ public:
 	bool bMulti = true;
 
 	//Lenght of the trace
-	UPROPERTY(EditInstanceOnly = "Collision")
+	UPROPERTY(EditInstanceOnly, Category = "Collision")
 	float Length = 300;
-
-	/** Whether we should trace against complex collision */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bTraceComplex = false;
-
-	/** Whether we want to find out initial overlap or not. If true, it will return if this was initial overlap. */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bFindInitialOverlaps = true;
-
-	/** Whether to ignore blocking results. */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bIgnoreBlocks = false;
-
-	/** Whether to ignore touch/overlap results. */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bIgnoreTouches = false;
-
-	/** Whether to skip narrow phase checks (only for overlaps). */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bSkipNarrowPhase = false;
-
-	/** Whether to ignore traces to the cluster union and trace against its children instead. */
-	UPROPERTY(EditInstanceOnly, Category = "Params")
-	bool bTraceIntoSubComponents = false;
 
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;
 
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TArray<FCollisionTestResponsePair> ResponsePairs;
+};
+
+UCLASS(Abstract, EditInlineNew, CollapseCategories)
+class UBaseCollisionTestByObjectMode : public UObject
+{
+public:
+	GENERATED_BODY()
+	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const PURE_VIRTUAL(UBaseCollisionTestByObjectMode::GetCollisionObjectQueryParams, return FCollisionObjectQueryParams(););
+};
+
+UENUM()
+enum class ECollisionTestByObjectMode : uint8
+{
+	AllObjects,
+	AllStaticObjects,
+	AllDynamicObjects
+};
+
+UCLASS(EditInlineNew, CollapseCategories)
+class UAllTypeListCollisionTestByObjectMode : public UBaseCollisionTestByObjectMode
+{
+public:
+	GENERATED_BODY()
+	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	ECollisionTestByObjectMode CollisionTestByObjectMode = ECollisionTestByObjectMode::AllObjects;
+};
+
+UCLASS(EditInlineNew, CollapseCategories)
+class UObjectTypeListCollisionTestByObjectMode : public UBaseCollisionTestByObjectMode
+{
+public:
+
+	UObjectTypeListCollisionTestByObjectMode();
+
+	GENERATED_BODY()
+	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+};
+
+UCLASS(BlueprintType)
+class UTraceCollsionTestByObjectType : public UBaseCollisionTest
+{
+public:
+	GENERATED_BODY()
+
+	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, class FPrimitiveDrawInterface* PDI) const override;
+
+	virtual void PostInitProperties() override;
+
+	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
+	TObjectPtr<UBaseCollisionTestByObjectMode> CollisionTestByObjectMode;
+
+	//If true, it will also show overlap collision
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	bool bMulti = true;
+
+	//Lenght of the trace
+	UPROPERTY(EditInstanceOnly, Category = "Collision")
+	float Length = 300;
 };

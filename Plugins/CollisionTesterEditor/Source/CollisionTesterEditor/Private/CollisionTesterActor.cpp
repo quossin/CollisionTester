@@ -97,13 +97,23 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 	QueryParams.bTraceIntoSubComponents = bTraceIntoSubComponents;
 	QueryParams.AddIgnoredActor(CollisionTesterOwner);
 
+	FCollisionResponseContainer CollisionResponseContainer;
+	CollisionResponseContainer.SetAllChannels(DefaultResponse);
+
+	for (const FCollisionTestResponsePair& ResponsePair : ResponsePairs)
+	{
+		CollisionResponseContainer.SetResponse(ResponsePair.TraceChannel, ResponsePair.Response);
+	}
+
+	FCollisionResponseParams ResponseParams(CollisionResponseContainer);
+
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
 	const FVector TraceEnd = TraceStart + CollisionTesterOwner->GetActorForwardVector() * Length;
 
 	if (!bMulti)
 	{
 		FHitResult Hit;
-		bool bHasHit = CollisionTesterOwner->GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+		bool bHasHit = CollisionTesterOwner->GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams, ResponseParams);
 		if (!bHasHit)
 		{
 			PDI->DrawLine(TraceStart, TraceEnd, FColor::Green, SDPG_Foreground, 1.f);
@@ -118,7 +128,7 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 	else
 	{
 		TArray<struct FHitResult> OutHits;
-		CollisionTesterOwner->GetWorld()->LineTraceMultiByChannel(OutHits, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+		CollisionTesterOwner->GetWorld()->LineTraceMultiByChannel(OutHits, TraceStart, TraceEnd, TraceChannelProperty, QueryParams, ResponseParams);
 
 		if (OutHits.Num() == 0)
 		{

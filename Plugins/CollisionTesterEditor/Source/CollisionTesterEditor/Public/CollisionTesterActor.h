@@ -60,6 +60,17 @@ public:
 	void DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const class FMaterialRenderProxy* MaterialRenderProxy) const;
 };
 
+USTRUCT(BlueprintType)
+struct FCollisionTestResponsePair
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
+
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<ECollisionResponse> Response = ECR_Block;
+};
+
 UCLASS(BlueprintType)
 class UTraceCollsionTestByChannel : public UBaseCollisionTest
 {
@@ -103,4 +114,9 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Params")
 	bool bTraceIntoSubComponents = false;
 
+	UPROPERTY(EditInstanceOnly, Category = "Response")
+	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;
+
+	UPROPERTY(EditInstanceOnly, Category = "Response")
+	TArray<FCollisionTestResponsePair> ResponsePairs;
 };

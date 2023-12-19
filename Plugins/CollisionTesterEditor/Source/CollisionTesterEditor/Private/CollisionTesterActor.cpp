@@ -30,6 +30,9 @@ ACollisionTesterActor::ACollisionTesterActor()
 	CollisionTesterComponent = CreateDefaultSubobject<UCollisionTesterComponent>(TEXT("CollisionTesterComponent"));
 
 	Sprite = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
+	EndComponent = CreateDefaultSubobject<USceneComponent>(TEXT("EndComponent"));
+	EndComponent->SetupAttachment(GetRootComponent());
+	AddOwnedComponent(EndComponent);
 
 	bIsEditorOnlyActor = true;
 
@@ -115,7 +118,7 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 	FCollisionResponseParams ResponseParams(CollisionResponseContainer);
 
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
-	const FVector TraceEnd = TraceStart + CollisionTesterOwner->GetActorForwardVector() * Length;
+	const FVector TraceEnd = CollisionTesterOwner->EndComponent->GetComponentLocation();
 
 	if (!bMulti)
 	{
@@ -200,7 +203,7 @@ void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTester
 
 
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
-	const FVector TraceEnd = TraceStart + CollisionTesterOwner->GetActorForwardVector() * Length;
+	const FVector TraceEnd = CollisionTesterOwner->EndComponent->GetComponentLocation();
 
 
 	if (!bMulti)

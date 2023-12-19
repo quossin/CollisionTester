@@ -48,6 +48,10 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UBillboardComponent> Sprite;
 
+	/** End component to facilitate placing the end trace */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TObjectPtr<USceneComponent> EndComponent;
+
 };
 
 UCLASS(Abstract, EditInlineNew, CollapseCategories)
@@ -111,10 +115,6 @@ public:
 	//If true, it will also show overlap collision
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	bool bMulti = true;
-
-	//Lenght of the trace
-	UPROPERTY(EditInstanceOnly, Category = "Collision")
-	float Length = 300;
 
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;

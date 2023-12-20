@@ -21,14 +21,10 @@ public:
 
 	//Channel to collide with
 	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Pawn;
 
 	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
 	TObjectPtr<UBaseCollisionTestShape> Shape;
-
-	//If true, it will also show overlap collision
-	UPROPERTY(EditAnywhere, Category = "Collision")
-	bool bMulti = true;
 
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;

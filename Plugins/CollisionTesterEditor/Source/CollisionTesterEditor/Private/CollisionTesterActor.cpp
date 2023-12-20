@@ -73,7 +73,7 @@ void ACollisionTesterActor::PostInitProperties()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
 	{
-		CollisionTest = NewObject<UTraceCollsionTestByChannel>(this);
+		CollisionTest = NewObject<UTraceCollisionTestByChannel>(this);
 	}
 
 	Super::PostInitProperties();
@@ -98,13 +98,12 @@ FCollisionQueryParams UBaseCollisionTest::GetQueryParams(AActor& Owner) const
 	return QueryParams;
 }
 
-void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+void UTraceCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
 {
 	if (CollisionTesterOwner == nullptr) return;
 	if (PDI == nullptr) return;
 	if (CollisionTesterOwner->GetWorld() == nullptr) return;
-
-
+	
 	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 
 	FCollisionResponseContainer CollisionResponseContainer;
@@ -123,15 +122,20 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 	if (!bMulti)
 	{
 		FHitResult Hit;
-		bool bHasHit = CollisionTesterOwner->GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams, ResponseParams);
+		bool bHasHit = CollisionTesterOwner->GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd,
+			TraceChannelProperty, QueryParams, ResponseParams);
+		FLinearColor ColorToUse = bHasHit ? FColor::Red : FColor::Green;
+		
 		if (!bHasHit)
 		{
+			ColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
 			PDI->DrawLine(TraceStart, TraceEnd, FColor::Green, SDPG_Foreground, 1.f);
 		}
 		else
 		{
 			PDI->DrawLine(TraceStart, Hit.Location, FColor::Green, SDPG_Foreground, 1.f);
-			PDI->DrawLine(Hit.Location, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);
+			FLinearColor EndColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
+			PDI->DrawLine(Hit.Location, TraceEnd, EndColorToUse, SDPG_Foreground, 1.f);
 			DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
 		}
 	}
@@ -146,6 +150,105 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 		}
 		else
 		{
+			const FLinearColor StartColorToUse = OutHits[0].bBlockingHit ?  FColor::Red : FColor::Blue;
+			PDI->DrawLine(TraceStart, OutHits[0].Location, StartColorToUse, SDPG_Foreground, 1.f);
+			for (const FHitResult& Hit : OutHits)
+			{
+				if (Hit.bBlockingHit)
+				{
+					DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+				}
+				else
+				{
+					DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialZ->GetRenderProxy());
+				}
+			}
+			
+			const FHitResult& LastHit = OutHits[OutHits.Num() - 1];
+			const FVector& LastHitLoc = LastHit.Location;
+			const FLinearColor EndColorToUse = LastHit.bBlockingHit ?  FColor::Red : FColor::Blue;
+			PDI->DrawLine(LastHitLoc, TraceEnd, EndColorToUse, SDPG_Foreground, 1.f);
+		}
+	}
+}
+
+void USweepCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+{
+	if (CollisionTesterOwner == nullptr) return;
+	if (PDI == nullptr) return;
+	if (CollisionTesterOwner->GetWorld() == nullptr) return;
+
+	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
+
+	FCollisionResponseContainer CollisionResponseContainer;
+	CollisionResponseContainer.SetAllChannels(DefaultResponse);
+
+	for (const FCollisionTestResponsePair& ResponsePair : ResponsePairs)
+	{
+		CollisionResponseContainer.SetResponse(ResponsePair.TraceChannel, ResponsePair.Response);
+	}
+
+	FCollisionResponseParams ResponseParams(CollisionResponseContainer);
+
+	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
+	const FVector TraceEnd = CollisionTesterOwner->EndComponent->GetComponentLocation();
+
+	FCollisionShape CollisionShape = FCollisionShape();
+
+	switch (TraceShape) {
+	case ECollisionShape::Box:
+		{
+			CollisionShape.SetBox(BoxHalfExtend);
+		}
+		break;
+	case ECollisionShape::Sphere:
+		{
+			CollisionShape.SetSphere(SphereRadius);
+		}
+		break;
+	case ECollisionShape::Capsule:
+		{
+			CollisionShape.SetCapsule(CapsuleRadius, CapsuleHalfHeight);
+		}
+		break;
+	case ECollisionShape::Line:
+	default:
+		{
+			// TODO - Warning message ?	
+		}
+	}
+
+	// TODO - Support drawing lines between shape for better visualization
+	if (!bMulti)
+	{
+		FHitResult Hit;
+		const bool bHasHit = CollisionTesterOwner->GetWorld()->SweepSingleByChannel(Hit, TraceStart, TraceEnd,
+			FQuat::Identity, TraceChannelProperty, CollisionShape, QueryParams, ResponseParams);
+		FLinearColor ColorToUse = bHasHit ? FColor::Red : FColor::Green;
+
+		if (bHasHit)
+		{
+			DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+			ColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
+		}
+		DrawShapes(CollisionTesterOwner, CollisionTesterOwner->GetActorLocation(), PDI,ColorToUse);
+		DrawShapes(CollisionTesterOwner, CollisionTesterOwner->EndComponent->GetComponentLocation(), PDI,ColorToUse);
+	}
+	else
+	{
+		TArray<FHitResult> OutHits;
+		CollisionTesterOwner->GetWorld()->SweepMultiByChannel(OutHits, TraceStart, TraceEnd, FQuat::Identity,
+			TraceChannelProperty, CollisionShape, QueryParams, ResponseParams);
+
+		if (OutHits.Num() == 0)
+		{
+			DrawShapes(CollisionTesterOwner, CollisionTesterOwner->GetActorLocation(), PDI, FColor::Green);
+			DrawShapes(CollisionTesterOwner, CollisionTesterOwner->EndComponent->GetComponentLocation(), PDI, FColor::Green);
+		}
+		else
+		{
+			const FLinearColor StartColorToUse = OutHits[0].bBlockingHit ?  FColor::Red : FColor::Blue;
+			DrawShapes(CollisionTesterOwner, TraceStart, PDI, StartColorToUse);
 			for (const FHitResult& Hit : OutHits)
 			{
 				if (Hit.bBlockingHit)
@@ -158,9 +261,47 @@ void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwn
 				}
 			}
 
-			const FVector& LastHitLoc = OutHits[OutHits.Num() - 1].Location;
+			const FHitResult& LastHit = OutHits[OutHits.Num() - 1];
+			const FLinearColor EndColorToUse = LastHit.bBlockingHit ?  FColor::Red : FColor::Blue;
+			/*const FVector& LastHitLoc = LastHit.Location;
 			PDI->DrawLine(TraceStart, LastHitLoc, FColor::Green, SDPG_Foreground, 1.f);
-			PDI->DrawLine(LastHitLoc, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);
+			PDI->DrawLine(LastHitLoc, TraceEnd, FColor::Red, SDPG_Foreground, 1.f);*/
+				
+			DrawShapes(CollisionTesterOwner, TraceEnd, PDI, EndColorToUse);
+		}
+	}
+}
+
+void USweepCollisionTestByChannel::DrawShapes(ACollisionTesterActor* CollisionTesterOwner, const FVector& ShapeLocation, FPrimitiveDrawInterface* PDI,
+	const FLinearColor& ColorToUse) const
+{
+	switch (TraceShape) {
+	case ECollisionShape::Box:
+		{
+			const FVector BoxStartMin = ShapeLocation - static_cast<FVector>(BoxHalfExtend);
+			const FVector BoxStartMax = ShapeLocation + static_cast<FVector>(BoxHalfExtend);
+				
+			DrawWireBox(PDI, FBox(BoxStartMin, BoxStartMax), ColorToUse, 8, SDPG_Foreground, 1.f);
+			break;
+		}
+	case ECollisionShape::Sphere:
+		{
+			DrawWireSphere(PDI, ShapeLocation, ColorToUse, SphereRadius, 8, SDPG_Foreground, 1.f);
+			DrawWireSphere(PDI, ShapeLocation, ColorToUse, SphereRadius, 8, SDPG_Foreground, 1.f);
+			break;
+		}
+	case ECollisionShape::Capsule:
+		{
+			DrawWireCapsule(PDI, ShapeLocation, CollisionTesterOwner->GetActorForwardVector(), CollisionTesterOwner->GetActorRightVector(),
+				CollisionTesterOwner->GetActorUpVector(), ColorToUse, CapsuleRadius, CapsuleHalfHeight, 8, SDPG_Foreground, 1.f);
+			DrawWireCapsule(PDI, ShapeLocation, CollisionTesterOwner->EndComponent->GetForwardVector(), CollisionTesterOwner->EndComponent->GetRightVector(),
+				CollisionTesterOwner->EndComponent->GetUpVector(), ColorToUse, CapsuleRadius, CapsuleHalfHeight, 8, SDPG_Foreground, 1.f);
+			break;
+		}
+	case ECollisionShape::Line:
+	default:
+		{
+			// TODO - Warning message ?	
 		}
 	}
 }
@@ -190,8 +331,7 @@ FCollisionObjectQueryParams UAllTypeListCollisionTestByObjectMode::GetCollisionO
 	return FCollisionObjectQueryParams();
 }
 
-
-void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+void UTraceCollisionTestByObjectType::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
 {
 	if (CollisionTesterOwner == nullptr) return;
 	if (PDI == nullptr) return;
@@ -201,10 +341,8 @@ void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTester
 	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 	FCollisionObjectQueryParams CollisionObjectQueryParams = CollisionTestByObjectMode->GetCollisionObjectQueryParams();
 
-
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
 	const FVector TraceEnd = CollisionTesterOwner->EndComponent->GetComponentLocation();
-
 
 	if (!bMulti)
 	{
@@ -251,7 +389,7 @@ void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTester
 	}
 }
 
-void UTraceCollsionTestByObjectType::PostInitProperties()
+void UTraceCollisionTestByObjectType::PostInitProperties()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
 	{

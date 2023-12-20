@@ -2,14 +2,24 @@
 
 #pragma once
 
+#include "CollisionShape.h"
 #include "ComponentVisualizer.h"
-#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/ActorComponent.h"
 
 #include "CollisionTesterActor.generated.h"
 
 class ActorComponent;
+
+/* Blueprint available enum for collision shape used with the collision tester */
+UENUM(BlueprintType)
+enum ECollisionTesterShapeType : uint8
+{
+	Line = ECollisionShape::Line UMETA(Hidden), // Don't show line shape, it's useless
+	Box = ECollisionShape::Type::Box,
+	Sphere = ECollisionShape::Type::Sphere,
+	Capsule = ECollisionShape::Type::Capsule,
+};
 
 
 class FCollisionTesterComponentVisualizer : public FComponentVisualizer
@@ -26,6 +36,7 @@ class UCollisionTesterComponent : public UActorComponent
 	GENERATED_BODY()
 };
 
+// Editor actor than can be placed in a level to quickly do trace testing
 UCLASS(hideCategories = (Rendering, Replication, Collision, HLOD, Physics, Networking, Input, Actor, LevelInstance, Cooking))
 class ACollisionTesterActor : public AActor
 {
@@ -94,6 +105,7 @@ USTRUCT(BlueprintType)
 struct FCollisionTestResponsePair
 {
 	GENERATED_BODY()
+
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_WorldStatic;
 
@@ -102,7 +114,7 @@ struct FCollisionTestResponsePair
 };
 
 UCLASS(BlueprintType)
-class UTraceCollsionTestByChannel : public UBaseCollisionTest
+class UTraceCollisionTestByChannel : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
@@ -116,12 +128,46 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	bool bMulti = true;
 
+	//Default response channel to check with the trace
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;
 
+	//Specific collision channel and it's associated response
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TArray<FCollisionTestResponsePair> ResponsePairs;
 };
+
+UCLASS(BlueprintType)
+class USweepCollisionTestByChannel : public UTraceCollisionTestByChannel
+{
+public:
+	GENERATED_BODY()
+	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const override;
+	virtual void DrawShapes(ACollisionTesterActor* CollisionTesterOwner, const FVector& ShapeLocation,
+		FPrimitiveDrawInterface* PDI, const FLinearColor& ColorToUse) const;
+
+	//Shape to use for the sweep, take note that line will not work correctly here
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	TEnumAsByte<ECollisionTesterShapeType> TraceShape = ECollisionTesterShapeType::Box;
+
+	//Box shape only : Box size to use for the sweep
+	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Box", EditConditionHides))
+	FVector3f BoxHalfExtend = {50.0f, 50.0f, 50.0f};
+
+	//Sphere shape only : Radius to use for the shape sweep
+	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Sphere", EditConditionHides))
+	float SphereRadius = 25.f;
+
+	//Capsule shape only : Capsule height to use
+	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Capsule", EditConditionHides))
+	float CapsuleHalfHeight = 100.f;
+
+	//Capsule shape only : Radius to use for the shape sweep
+	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Capsule", EditConditionHides))
+	float CapsuleRadius = 42.f;
+};
+
+/* By Object Trace */
 
 UCLASS(Abstract, EditInlineNew, CollapseCategories)
 class UBaseCollisionTestByObjectMode : public UObject
@@ -144,7 +190,7 @@ class UAllTypeListCollisionTestByObjectMode : public UBaseCollisionTestByObjectM
 {
 public:
 	GENERATED_BODY()
-	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const;
+	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const override;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	ECollisionTestByObjectMode CollisionTestByObjectMode = ECollisionTestByObjectMode::AllObjects;
@@ -158,14 +204,14 @@ public:
 	UObjectTypeListCollisionTestByObjectMode();
 
 	GENERATED_BODY()
-	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const;
+	virtual FCollisionObjectQueryParams GetCollisionObjectQueryParams() const override;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 };
 
 UCLASS(BlueprintType)
-class UTraceCollsionTestByObjectType : public UBaseCollisionTest
+class UTraceCollisionTestByObjectType : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
@@ -180,8 +226,4 @@ public:
 	//If true, it will also show overlap collision
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	bool bMulti = true;
-
-	//Lenght of the trace
-	UPROPERTY(EditInstanceOnly, Category = "Collision")
-	float Length = 300;
 };

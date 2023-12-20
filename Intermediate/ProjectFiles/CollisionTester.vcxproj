@@ -307,11 +307,15 @@
     <None Include="..\..\Plugins\CollisionTesterEditor\CollisionTesterEditor.uplugin" />
     <None Include="..\..\Plugins\CollisionTesterEditor\Resources\Icon128.png" />
     <None Include="..\..\Source\CollisionTester\CollisionTester.Build.cs" />
+    <ClCompile Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private\CollisionTestShapes.cpp" />
+    <ClCompile Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private\OverlapCollisionTest.cpp" />
     <ClCompile Include="..\..\Source\CollisionTester\CollisionTester.cpp">
       <AdditionalIncludeDirectories>$(ClCompile_AdditionalIncludeDirectories_1)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(ClCompile_ForcedIncludeFiles_1)</ForcedIncludeFiles>
       <AdditionalOptions>$(ClCompile_AdditionalOptions)</AdditionalOptions>
     </ClCompile>
+    <ClInclude Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public\CollisionTestShapes.h" />
+    <ClInclude Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public\OverlapCollisionTest.h" />
     <ClInclude Include="..\..\Source\CollisionTester\CollisionTester.h" />
   </ItemGroup>
   <PropertyGroup>

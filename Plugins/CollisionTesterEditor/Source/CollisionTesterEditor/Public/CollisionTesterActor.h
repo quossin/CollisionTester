@@ -9,9 +9,6 @@
 
 #include "CollisionTesterActor.generated.h"
 
-class ActorComponent;
-
-
 class FCollisionTesterComponentVisualizer : public FComponentVisualizer
 {
 public:
@@ -98,7 +95,7 @@ struct FCollisionTestResponsePair
 };
 
 UCLASS(BlueprintType)
-class UTraceCollsionTestByChannel : public UBaseCollisionTest
+class UTraceCollisionTestByChannel : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
@@ -164,8 +161,21 @@ public:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 };
 
+UENUM(meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EFilterFlags : uint8
+{
+	Flag1 = 1 << 0,
+	Flag2 = 2 << 1,
+	Flag3 = 3 << 2,
+	Flag4 = 4 << 3,
+	Flag5 = 5 << 4,
+	Flag6 = 6 << 5,
+};
+
+ENUM_CLASS_FLAGS(EFilterFlags)
+
 UCLASS(BlueprintType)
-class UTraceCollsionTestByObjectType : public UBaseCollisionTest
+class UTraceCollisionTestByObjectType : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
@@ -184,4 +194,7 @@ public:
 	//Lenght of the trace
 	UPROPERTY(EditInstanceOnly, Category = "Collision")
 	float Length = 300;
+
+	UPROPERTY(EditDefaultsOnly, meta = (Bitmask, BitmaskEnum = EAnimalFlags))
+	EFilterFlags FilterFlags;
 };

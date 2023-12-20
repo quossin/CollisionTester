@@ -70,7 +70,7 @@ void ACollisionTesterActor::PostInitProperties()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
 	{
-		CollisionTest = NewObject<UTraceCollsionTestByChannel>(this);
+		CollisionTest = NewObject<UTraceCollisionTestByChannel>(this);
 	}
 
 	Super::PostInitProperties();
@@ -95,7 +95,7 @@ FCollisionQueryParams UBaseCollisionTest::GetQueryParams(AActor& Owner) const
 	return QueryParams;
 }
 
-void UTraceCollsionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+void UTraceCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
 {
 	if (CollisionTesterOwner == nullptr) return;
 	if (PDI == nullptr) return;
@@ -188,7 +188,7 @@ FCollisionObjectQueryParams UAllTypeListCollisionTestByObjectMode::GetCollisionO
 }
 
 
-void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
+void UTraceCollisionTestByObjectType::Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const
 {
 	if (CollisionTesterOwner == nullptr) return;
 	if (PDI == nullptr) return;
@@ -197,7 +197,7 @@ void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTester
 
 	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 	FCollisionObjectQueryParams CollisionObjectQueryParams = CollisionTestByObjectMode->GetCollisionObjectQueryParams();
-
+	CollisionObjectQueryParams.IgnoreMask = static_cast<uint8>(FilterFlags);
 
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
 	const FVector TraceEnd = TraceStart + CollisionTesterOwner->GetActorForwardVector() * Length;
@@ -248,7 +248,7 @@ void UTraceCollsionTestByObjectType::Draw(ACollisionTesterActor* CollisionTester
 	}
 }
 
-void UTraceCollsionTestByObjectType::PostInitProperties()
+void UTraceCollisionTestByObjectType::PostInitProperties()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
 	{

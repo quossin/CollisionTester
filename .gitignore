@@ -379,7 +379,6 @@ FodyWeavers.xsd
 
 #Local
 .idea/
-Plugins/CollisionTesterEditor/Intermediate/
 Saved/
 Intermediate/ProjectFiles/.Rider/
 Intermediate/*.json

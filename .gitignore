@@ -376,3 +376,12 @@ FodyWeavers.xsd
 /Saved/Autosaves/Game/CollisionTesterMap_Auto1.umap
 /Plugins/CollisionTesterEditor/Binaries/Win64
 /Saved/Config/CrashReportClient
+
+# Rider
+.idea/
+
+# Build files
+/Plugins/CollisionTesterEditor/Intermediate/
+/Intermediate/*.json
+/Intermediate/ProjectFiles/.Rider/
+/Saved/

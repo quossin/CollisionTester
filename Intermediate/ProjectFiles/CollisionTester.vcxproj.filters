@@ -80,9 +80,21 @@
     <ClCompile Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private\CollisionTesterActor.cpp">
       <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private\CollisionTestShapes.cpp">
+      <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private\OverlapCollisionTest.cpp">
+      <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public\CollisionTesterActor.h">
+      <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public\OverlapCollisionTest.h">
+      <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public\CollisionTestShapes.h">
       <Filter>Plugins\CollisionTesterEditor\Source\CollisionTesterEditor\Public</Filter>
     </ClInclude>
   </ItemGroup>

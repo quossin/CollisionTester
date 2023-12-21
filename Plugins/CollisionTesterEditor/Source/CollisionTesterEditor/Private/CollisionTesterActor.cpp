@@ -340,6 +340,7 @@ void UTraceCollisionTestByObjectType::Draw(ACollisionTesterActor* CollisionTeste
 
 	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 	FCollisionObjectQueryParams CollisionObjectQueryParams = CollisionTestByObjectMode->GetCollisionObjectQueryParams();
+	CollisionObjectQueryParams.IgnoreMask = static_cast<uint8>(FilterFlags);
 
 	const FVector TraceStart = CollisionTesterOwner->GetActorLocation();
 	const FVector TraceEnd = CollisionTesterOwner->EndComponent->GetComponentLocation();

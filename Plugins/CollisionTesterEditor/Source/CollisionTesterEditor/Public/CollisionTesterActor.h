@@ -21,7 +21,6 @@ enum ECollisionTesterShapeType : uint8
 	Capsule = ECollisionShape::Type::Capsule,
 };
 
-
 class FCollisionTesterComponentVisualizer : public FComponentVisualizer
 {
 public:
@@ -210,6 +209,19 @@ public:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 };
 
+UENUM(meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
+enum class EFilterFlags : uint8
+{
+	Flag1 = 1 << 0,
+	Flag2 = 2 << 1,
+	Flag3 = 3 << 2,
+	Flag4 = 4 << 3,
+	Flag5 = 5 << 4,
+	Flag6 = 6 << 5,
+};
+
+ENUM_CLASS_FLAGS(EFilterFlags)
+
 UCLASS(BlueprintType)
 class UTraceCollisionTestByObjectType : public UBaseCollisionTest
 {
@@ -226,4 +238,7 @@ public:
 	//If true, it will also show overlap collision
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	bool bMulti = true;
+
+	UPROPERTY(EditDefaultsOnly, meta = (Bitmask, BitmaskEnum = EAnimalFlags))
+	EFilterFlags FilterFlags;
 };

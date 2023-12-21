@@ -364,9 +364,11 @@ FodyWeavers.xsd
 /Intermediate/CachedAssetRegistry_0.bin
 /Intermediate/Build/SourceFileCache.bin
 /Intermediate/Build/Win64/CollisionTesterEditor/Development/CollisionTesterEditor.uhtmanifest
-/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/CollisionTesterActor.generated.h
-/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/CollisionTesterEditor.init.gen.cpp
-/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/CollisionTesterActor.gen.cpp
+/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/*.generated.h
+/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/*.init.gen.cpp
+/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/*.gen.cpp
+/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/*.h
+/Plugins/CollisionTesterEditor/Intermediate/Build/Win64/UnrealEditor/Inc/CollisionTesterEditor/UHT/Timestamp
 /Saved/Config/CrashReportClient/UECC-Windows-27CCBE7D4E45BC1CD91FA4B0E58D69C7/CrashReportClient.ini
 /Saved/Config/CrashReportClient/UECC-Windows-EC93034C41A333DA0F7B849E5BDE08FA/CrashReportClient.ini
 /Saved/Config/CrashReportClient/UECC-Windows-F3B923CA4CD1CB6AA45F969DC656E615/CrashReportClient.ini

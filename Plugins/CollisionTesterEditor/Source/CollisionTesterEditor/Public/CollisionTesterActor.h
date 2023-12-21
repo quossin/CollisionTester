@@ -10,6 +10,7 @@
 #include "CollisionTesterActor.generated.h"
 
 class ActorComponent;
+class UBaseCollisionTestShape;
 
 /* Blueprint available enum for collision shape used with the collision tester */
 UENUM(BlueprintType)
@@ -58,9 +59,13 @@ public:
 	UPROPERTY()
 	TObjectPtr<class UBillboardComponent> Sprite;
 
-	/** End component to facilitate placing the end trace */
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TObjectPtr<USceneComponent> EndComponent;
+	UFUNCTION(BlueprintCallable)
+	FTransform GetTraceEndTransform() const;
+
+private:
+	/* End transform of the trace, take notes that the scale will not be used */
+	UPROPERTY(EditAnywhere, meta=(MakeEditWidget, AllowPrivateAccess))
+	FTransform EndOfTrace;
 
 };
 
@@ -73,7 +78,7 @@ public:
 
 	void DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const class FMaterialRenderProxy* MaterialRenderProxy) const;
 
-	FCollisionQueryParams GetQueryParams(AActor& Owner) const;
+	FCollisionQueryParams GetQueryParams(const AActor& Owner) const;
 
 	/** Whether we should trace against complex collision */
 	UPROPERTY(EditInstanceOnly, Category = "Params")
@@ -141,29 +146,16 @@ class USweepCollisionTestByChannel : public UTraceCollisionTestByChannel
 {
 public:
 	GENERATED_BODY()
+
+	virtual void PostInitProperties() override;
+
 	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const override;
 	virtual void DrawShapes(ACollisionTesterActor* CollisionTesterOwner, const FVector& ShapeLocation,
-		FPrimitiveDrawInterface* PDI, const FLinearColor& ColorToUse) const;
+		FPrimitiveDrawInterface* PDI, const FLinearColor& ColorToUse, FCollisionShape& UsedShape) const;
 
-	//Shape to use for the sweep, take note that line will not work correctly here
-	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionTesterShapeType> TraceShape = ECollisionTesterShapeType::Box;
-
-	//Box shape only : Box size to use for the sweep
-	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Box", EditConditionHides))
-	FVector3f BoxHalfExtend = {50.0f, 50.0f, 50.0f};
-
-	//Sphere shape only : Radius to use for the shape sweep
-	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Sphere", EditConditionHides))
-	float SphereRadius = 25.f;
-
-	//Capsule shape only : Capsule height to use
-	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Capsule", EditConditionHides))
-	float CapsuleHalfHeight = 100.f;
-
-	//Capsule shape only : Radius to use for the shape sweep
-	UPROPERTY(EditAnywhere, Category = "Collision", meta=(EditCondition="TraceShape==ECollisionTesterShapeType::Capsule", EditConditionHides))
-	float CapsuleRadius = 42.f;
+	// Instanced shape data to use for the trace
+	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
+	TObjectPtr<UBaseCollisionTestShape> Shape;
 };
 
 /* By Object Trace */

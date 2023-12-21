@@ -381,7 +381,6 @@ FodyWeavers.xsd
 .idea/
 
 # Build files
-/Plugins/CollisionTesterEditor/Intermediate/
 /Intermediate/*.json
 /Intermediate/ProjectFiles/.Rider/
 /Saved/

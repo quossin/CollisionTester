@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Juju & Seb. All Rights Reserved.
 
 #include "CollisionTester.h"
 #include "Modules/ModuleManager.h"

@@ -1,4 +1,4 @@
-// Fill out your copyright noTtice in the Description page of Project Settings.
+// Copyright Juju & Seb. All Rights Reserved.
 
 #pragma once
 
@@ -12,6 +12,7 @@ class UBaseCollisionTestShape : public UObject
 public:
 	GENERATED_BODY()
 	virtual FCollisionShape GetCollisionShape() const PURE_VIRTUAL(UBaseCollisionTestShape::GetCollisionShape, return FCollisionShape(););
+	virtual void DrawShape(class FPrimitiveDrawInterface* PDI, const FTransform& Transform, const FColor& Color) const PURE_VIRTUAL(UBaseCollisionTestShape::DrawShape, );
 };
 
 UCLASS(EditInlineNew, CollapseCategories)
@@ -20,6 +21,7 @@ class UCollisionTestSphere : public UBaseCollisionTestShape
 public:
 	GENERATED_BODY()
 	virtual FCollisionShape GetCollisionShape() const;
+	virtual void DrawShape(class FPrimitiveDrawInterface* PDI, const FTransform& Transform, const FColor& Color) const override;
 
 	UPROPERTY(EditInstanceOnly, Category = "Params", meta = (UIMin = 0, ClampMin = 0))
 	float Radius = 50.f;
@@ -32,6 +34,7 @@ class UCollisionTestBox : public UBaseCollisionTestShape
 public:
 	GENERATED_BODY()
 	virtual FCollisionShape GetCollisionShape() const;
+	virtual void DrawShape(class FPrimitiveDrawInterface* PDI, const FTransform& Transform, const FColor& Color) const override;
 
 	UPROPERTY(EditInstanceOnly, Category = "Params", meta = (UIMin = 0, ClampMin = 0))
 	float HalfExtentX = 50.f;
@@ -49,6 +52,7 @@ class UCollisionTestCapsule : public UBaseCollisionTestShape
 public:
 	GENERATED_BODY()
 	virtual FCollisionShape GetCollisionShape() const;
+	virtual void DrawShape(class FPrimitiveDrawInterface* PDI, const FTransform& Transform, const FColor& Color) const override;
 
 	UPROPERTY(EditInstanceOnly, Category = "Params", meta = (UIMin = 0, ClampMin = 0))
 	float Radius = 34.f;

@@ -4,37 +4,37 @@
 
 #include "CoreMinimal.h"
 
-#include "CollisionTesterActor.h"
-#include "CollisionTestShapes.h"
 #include "BaseCollisionTest.h"
 
-#include "OverlapCollisionTest.generated.h"
+#include "TraceCollisionTest.generated.h"
+
 
 UCLASS(BlueprintType)
-class UOverlapCollisionTestByChannel : public UBaseCollisionTest
+class UTraceCollisionTestByChannel : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
-
-	virtual void PostInitProperties() override;
-	virtual void Draw(class ACollisionTesterActor* CollisionTesterOwner, class FPrimitiveDrawInterface* PDI) const override;
+	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, class FPrimitiveDrawInterface* PDI) const override;
 
 	//Channel to collide with
 	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionChannel> TraceChannel = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
 
-	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
-	TObjectPtr<UBaseCollisionTestShape> Shape;
+	//If true, it will also show overlap collision
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	bool bMulti = true;
 
+	//Default response channel to check with the trace
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TEnumAsByte<ECollisionResponse> DefaultResponse = ECR_Block;
 
+	//Specific collision channel and it's associated response
 	UPROPERTY(EditInstanceOnly, Category = "Response")
 	TArray<FCollisionTestResponsePair> ResponsePairs;
 };
 
 UCLASS(BlueprintType)
-class UOverlapCollisionTestByObjectType : public UBaseCollisionTest
+class UTraceCollisionTestByObjectType : public UBaseCollisionTest
 {
 public:
 	GENERATED_BODY()
@@ -45,8 +45,9 @@ public:
 	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
 	TObjectPtr<UBaseCollisionTestByObjectMode> CollisionTestByObjectMode;
 
-	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
-	TObjectPtr<UBaseCollisionTestShape> Shape;
+	//If true, it will also show overlap collision
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	bool bMulti = true;
 
 	UPROPERTY(EditDefaultsOnly, meta = (Bitmask, BitmaskEnum = EAnimalFlags))
 	EFilterFlags FilterFlags;

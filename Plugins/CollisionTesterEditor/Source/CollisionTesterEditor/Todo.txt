@@ -1,0 +1,4 @@
+Update draw sphere material.
+Remove end trace in overlap test.
+Upgrade sweep visual.
+Overlap by object type.

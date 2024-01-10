@@ -3,3 +3,5 @@ Remove end trace in overlap test.
 Upgrade sweep visual.
 Sweep by object type.
 Improve Highlight overlap and block object.
+On screen message for primitive hit
+Patch end rotation for sweeps.

@@ -17,10 +17,23 @@ public:
 	virtual void PostInitProperties() override;
 
 	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const override;
-	virtual void DrawShapes(ACollisionTesterActor* CollisionTesterOwner, const FVector& ShapeLocation,
-		FPrimitiveDrawInterface* PDI, const FLinearColor& ColorToUse, FCollisionShape& UsedShape) const;
 
 	// Instanced shape data to use for the trace
 	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
-	TObjectPtr<UBaseCollisionTestShape> Shape;
+	TObjectPtr<class UBaseCollisionTestShape> Shape;
+};
+
+UCLASS(BlueprintType)
+class USweepCollisionTestByObjectType : public UTraceCollisionTestByObjectType
+{
+public:
+	GENERATED_BODY()
+
+	virtual void PostInitProperties() override;
+
+	virtual void Draw(ACollisionTesterActor* CollisionTesterOwner, FPrimitiveDrawInterface* PDI) const override;
+
+	// Instanced shape data to use for the trace
+	UPROPERTY(EditInstanceOnly, Instanced, NoClear, meta = (NoResetToDefault))
+	TObjectPtr<class UBaseCollisionTestShape> Shape;
 };

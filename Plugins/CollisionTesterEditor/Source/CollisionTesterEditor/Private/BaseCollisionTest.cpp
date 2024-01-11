@@ -45,3 +45,4 @@ FCollisionQueryParams UBaseCollisionTest::GetQueryParams(const AActor& Owner) co
 
 	return QueryParams;
 }
+

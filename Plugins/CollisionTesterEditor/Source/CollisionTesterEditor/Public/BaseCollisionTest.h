@@ -29,6 +29,24 @@ public:
 
 	FCollisionQueryParams GetQueryParams(const AActor& Owner) const;
 
+	template<class HITRESULT_CLASS>
+	void PrintHitInfo(const HITRESULT_CLASS& Hit, int32 Index = 0) const
+	{
+		const FColor TextColor = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
+
+		const FString ActorName = Hit.GetActor() ? Hit.GetActor()->GetName() : FString(TEXT("UNKNOWN"));
+		const FString ComponentName = Hit.GetComponent() ? Hit.GetComponent()->GetName() : FString(TEXT("UNKNOWN"));
+
+		const FString Text = FString::Format(TEXT("CollisionTest Hit: {0} ({1} )"),
+			{
+				*ActorName
+				, *ComponentName
+			}
+		);
+
+		GEngine->AddOnScreenDebugMessage(reinterpret_cast<uint64>(this) + Index, 0.1f, TextColor, *Text, false);
+	}
+
 	/** Whether we should trace against complex collision */
 	UPROPERTY(EditInstanceOnly, Category = "Params")
 	bool bTraceComplex = false;

@@ -5,6 +5,52 @@
 #include "CollisionTestShapes.h"
 #include "CollisionTesterActor.h"
 
+
+namespace CollisionTestUtil
+{
+	namespace Sweep
+	{
+		void DrawSweepShape(const UBaseCollisionTest& CollisionTest, const TArray<FHitResult>& Hits, const FTransform& StartTransform, const FTransform& EndTransform, const UBaseCollisionTestShape& Shape, FPrimitiveDrawInterface* PDI)
+		{
+			if (Hits.Num() == 0)
+			{
+				Shape.DrawShape(PDI, StartTransform, FColor::Green);
+				Shape.DrawShape(PDI, EndTransform, FColor::Green);
+			}
+			else
+			{
+				const FHitResult& LastHit = Hits[Hits.Num() - 1];
+				const FColor ColorToUse = LastHit.bBlockingHit ? FColor::Red : FColor::Blue;
+				Shape.DrawShape(PDI, StartTransform, ColorToUse);
+				bool bHasBlockingHit = false;
+
+				const FQuat TraceShapeQuat = StartTransform.GetRotation();
+
+				int32 Index = 0;
+				for (const FHitResult& Hit : Hits)
+				{
+					const FTransform HitTransform(TraceShapeQuat, Hit.Location);
+					if (Hit.bBlockingHit)
+					{
+						Shape.DrawShape(PDI, HitTransform, FColor::Red);
+						bHasBlockingHit = true;
+					}
+					else
+					{
+						Shape.DrawShape(PDI, HitTransform, FColor::Blue);
+					}
+					CollisionTest.PrintHitInfo(Hit, Index++);
+				}
+
+				const FColor EndColor = bHasBlockingHit ? FColor(128, 128, 128) : FColor::Green;
+				Shape.DrawShape(PDI, EndTransform, EndColor);
+			}
+
+		}
+	}
+}
+
+
 void USweepCollisionTestByChannel::PostInitProperties()
 {
 	if (!HasAnyFlags(RF_ClassDefaultObject) && !(GetOuter() && GetOuter()->HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject)))
@@ -20,7 +66,8 @@ void USweepCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOw
 	if (CollisionTesterOwner == nullptr) return;
 	if (PDI == nullptr) return;
 	if (CollisionTesterOwner->GetWorld() == nullptr) return;
-
+	if (Shape == nullptr) return;
+		 
 	FCollisionQueryParams QueryParams = GetQueryParams(*CollisionTesterOwner);
 
 	FCollisionResponseContainer CollisionResponseContainer;
@@ -46,16 +93,14 @@ void USweepCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOw
 	{
 		FHitResult Hit;
 		const bool bHasHit = CollisionTesterOwner->GetWorld()->SweepSingleByChannel(Hit, TraceStart, TraceEnd, TraceShapeQuat, TraceChannelProperty, CollisionShape, QueryParams, ResponseParams);
-		FColor ColorToUse = bHasHit ? FColor::Red : FColor::Green;
 
+		TArray<FHitResult> Hits;
 		if (bHasHit)
 		{
-			DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
-			ColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
+			Hits.Add(Hit);
 		}
 
-		Shape->DrawShape(PDI, StartTransform, ColorToUse);
-		Shape->DrawShape(PDI, EndTransform, ColorToUse);
+		CollisionTestUtil::Sweep::DrawSweepShape(*this, Hits, StartTransform, EndTransform, *Shape, PDI);
 	}
 	else
 	{
@@ -63,35 +108,7 @@ void USweepCollisionTestByChannel::Draw(ACollisionTesterActor* CollisionTesterOw
 		CollisionTesterOwner->GetWorld()->SweepMultiByChannel(OutHits, TraceStart, TraceEnd, FQuat::Identity,
 			TraceChannelProperty, CollisionShape, QueryParams, ResponseParams);
 
-		if (OutHits.Num() == 0)
-		{
-			Shape->DrawShape(PDI, StartTransform, FColor::Green);
-			Shape->DrawShape(PDI, EndTransform, FColor::Green);
-		}
-		else
-		{
-			const FHitResult& LastHit = OutHits[OutHits.Num() - 1];
-			const FColor ColorToUse = LastHit.bBlockingHit ? FColor::Red : FColor::Blue;
-			Shape->DrawShape(PDI, StartTransform, ColorToUse);
-			bool bHasBlockingHit = false;
-
-			for (const FHitResult& Hit : OutHits)
-			{
-				const FTransform HitTransform(TraceShapeQuat, Hit.Location);
-				if (Hit.bBlockingHit)
-				{
-					Shape->DrawShape(PDI, HitTransform, FColor::Red);
-					bHasBlockingHit = true;
-				}
-				else
-				{
-					Shape->DrawShape(PDI, HitTransform, FColor::Blue);
-				}
-			}
-
-			const FColor EndColor = bHasBlockingHit ? FColor::White : FColor::Green;
-			Shape->DrawShape(PDI, EndTransform, EndColor);
-		}
+		CollisionTestUtil::Sweep::DrawSweepShape(*this, OutHits, StartTransform, EndTransform, *Shape, PDI);
 	}
 }
 
@@ -128,50 +145,18 @@ void USweepCollisionTestByObjectType::Draw(ACollisionTesterActor* CollisionTeste
 	{
 		FHitResult Hit;
 		const bool bHasHit = CollisionTesterOwner->GetWorld()->SweepSingleByObjectType(Hit, TraceStart, TraceEnd, TraceShapeQuat, CollisionObjectQueryParams, CollisionShape, QueryParams);
-		FColor ColorToUse = bHasHit ? FColor::Red : FColor::Green;
-
+		TArray<FHitResult> Hits;
 		if (bHasHit)
 		{
-			DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
-			ColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
+			Hits.Add(Hit);
 		}
 
-		Shape->DrawShape(PDI, StartTransform, ColorToUse);
-		Shape->DrawShape(PDI, EndTransform, ColorToUse);
+		CollisionTestUtil::Sweep::DrawSweepShape(*this, Hits, StartTransform, EndTransform, *Shape, PDI);
 	}
 	else
 	{
 		TArray<FHitResult> OutHits;
 		CollisionTesterOwner->GetWorld()->SweepMultiByObjectType(OutHits, TraceStart, TraceEnd, TraceShapeQuat, CollisionObjectQueryParams, CollisionShape, QueryParams);
-
-		if (OutHits.Num() == 0)
-		{
-			Shape->DrawShape(PDI, StartTransform, FColor::Green);
-			Shape->DrawShape(PDI, EndTransform, FColor::Green);
-		}
-		else
-		{
-			const FHitResult& LastHit = OutHits[OutHits.Num() - 1];
-			const FColor ColorToUse = LastHit.bBlockingHit ? FColor::Red : FColor::Blue;
-			Shape->DrawShape(PDI, StartTransform, ColorToUse);
-			bool bHasBlockingHit = false;
-
-			for (const FHitResult& Hit : OutHits)
-			{
-				const FTransform HitTransform(TraceShapeQuat, Hit.Location);
-				if (Hit.bBlockingHit)
-				{
-					Shape->DrawShape(PDI, HitTransform, FColor::Red);
-					bHasBlockingHit = true;
-				}
-				else
-				{
-					Shape->DrawShape(PDI, HitTransform, FColor::Blue);
-				}
-			}
-
-			const FColor EndColor = bHasBlockingHit ? FColor::White : FColor::Green;
-			Shape->DrawShape(PDI, EndTransform, EndColor);
-		}
+		CollisionTestUtil::Sweep::DrawSweepShape(*this, OutHits, StartTransform, EndTransform, *Shape, PDI);
 	}
 }

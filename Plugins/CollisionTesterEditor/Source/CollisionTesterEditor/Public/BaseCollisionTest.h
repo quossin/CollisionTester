@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/EngineTypes.h"
+#include "CollisionQueryParams.h"
+#include "Engine/Engine.h"
 
 #include "BaseCollisionTest.generated.h"
 
@@ -24,6 +27,8 @@ class UBaseCollisionTest : public UObject
 public:
 	GENERATED_BODY()
 	virtual void Draw(class ACollisionTesterActor* CollisionTesterOwner, class FPrimitiveDrawInterface* PDI) const PURE_VIRTUAL(UBaseCollisionTest::Draw, );
+
+	void DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const FColor& Color) const;
 
 	void DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const class FMaterialRenderProxy* MaterialRenderProxy) const;
 

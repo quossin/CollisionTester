@@ -2,6 +2,7 @@
 
 #include "CollisionTestShapes.h"
 
+#include "SceneManagement.h"
 
 FCollisionShape UCollisionTestSphere::GetCollisionShape() const
 {

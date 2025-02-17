@@ -3,7 +3,9 @@
 #include "TraceCollisionTest.h"
 
 #include "CollisionTesterActor.h"
-
+#include "Components/PrimitiveComponent.h"
+#include "Engine/HitResult.h"
+#include "SceneManagement.h"
 
 namespace CollisionTestUtil
 {
@@ -23,7 +25,7 @@ namespace CollisionTestUtil
 				PDI->DrawLine(TraceStart, Hit.Location, FColor::Green, SDPG_Foreground, 1.f);
 				FLinearColor EndColorToUse = Hit.bBlockingHit ? FColor::Red : FColor::Blue;
 				PDI->DrawLine(Hit.Location, TraceEnd, EndColorToUse, SDPG_Foreground, 1.f);
-				CollisionTest.DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+				CollisionTest.DrawHit(PDI, Hit, FColor::Red);
 
 				CollisionTest.PrintHitInfo(Hit);
 			}
@@ -47,11 +49,11 @@ namespace CollisionTestUtil
 				{
 					if (Hit.bBlockingHit)
 					{
-						CollisionTest.DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialX->GetRenderProxy());
+						CollisionTest.DrawHit(PDI, Hit, FColor::Red);
 					}
 					else
 					{
-						CollisionTest.DrawHit(PDI, Hit, GEngine->ConstraintLimitMaterialZ->GetRenderProxy());
+						CollisionTest.DrawHit(PDI, Hit, FColor::Blue);
 					}
 
 					CollisionTest.PrintHitInfo(Hit, Index++);

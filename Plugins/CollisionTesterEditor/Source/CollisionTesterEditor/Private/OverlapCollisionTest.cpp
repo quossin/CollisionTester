@@ -2,6 +2,12 @@
 
 #include "OverlapCollisionTest.h"
 
+#include "Engine/OverlapResult.h"
+#include "Engine/Engine.h"
+#include "Materials/MaterialInstance.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Components/PrimitiveComponent.h"
+#include "SceneManagement.h"
 
 namespace CollisionTestUtil
 {

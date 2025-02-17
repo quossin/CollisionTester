@@ -4,7 +4,8 @@
 
 #include "CollisionTestShapes.h"
 #include "CollisionTesterActor.h"
-
+#include "Components/PrimitiveComponent.h"
+#include "Engine/HitResult.h"
 
 namespace CollisionTestUtil
 {

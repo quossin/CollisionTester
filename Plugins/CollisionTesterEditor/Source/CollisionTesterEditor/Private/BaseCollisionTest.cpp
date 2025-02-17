@@ -2,6 +2,11 @@
 
 #include "BaseCollisionTest.h"
 
+#include "CollisionTesterEditor.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/HitResult.h"
+#include "SceneManagement.h"
+
 UObjectTypeListCollisionTestByObjectMode::UObjectTypeListCollisionTestByObjectMode()
 {
 	ObjectTypes.Add(ObjectTypeQuery1);
@@ -25,6 +30,11 @@ FCollisionObjectQueryParams UAllTypeListCollisionTestByObjectMode::GetCollisionO
 	}
 
 	return FCollisionObjectQueryParams();
+}
+
+void UBaseCollisionTest::DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const FColor& Color) const
+{
+	DrawWireSphere(PDI, Hit.Location, Color, 10, 8, SDPG_World);
 }
 
 void UBaseCollisionTest::DrawHit(class FPrimitiveDrawInterface* PDI, const FHitResult& Hit, const FMaterialRenderProxy* MaterialRenderProxy) const

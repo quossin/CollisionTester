@@ -1,12 +1,15 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Juju & Seb. All Rights Reserved.
+#include "CollisionTesterActor.h"
 
-
+#include "BaseCollisionTest.h"
 #include "CollisionTesterActor.h"
 #include "CollisionTestShapes.h"
 #include "Components/BillboardComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/Texture2D.h"
 #include "SceneManagement.h"
-#include "BaseCollisionTest.h"
+#include "SweepCollisionTest.h"
+#include "UObject/ConstructorHelpers.h"
 
 void FCollisionTesterComponentVisualizer::DrawVisualization(const UActorComponent* Component, const FSceneView* View, FPrimitiveDrawInterface* PDI)
 {

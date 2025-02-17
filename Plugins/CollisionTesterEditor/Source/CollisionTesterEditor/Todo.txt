@@ -2,3 +2,18 @@ Update draw sphere material.
 Remove end trace in overlap test.
 Improve Highlight overlap and block object.
 On screen message for primitive hit (AddScreenMessage doesn't work...)
+
+StartAiming whe changing target.
+
+Bug fixing crouch/aprouach
+Optimse path recovery
+Path offset
+Departing arriving order and 
+
+Support EQS integration
+Coverless EQS
+EQS retrigger for better cover.
+Coverless repositionning.
+Squad reserve cover.
+Cover support (Lean)
+

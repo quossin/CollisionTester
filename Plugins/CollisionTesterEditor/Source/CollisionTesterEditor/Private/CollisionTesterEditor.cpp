@@ -43,6 +43,38 @@ void FCollisionTesterEditorModule::ShutdownModule()
 		}
 	}
 }
+/*
+const UMaterialInstanceDynamic* FCollisionTesterEditorModule::GetMaterial(const FColor& Color)
+{
+	if (MaterialMap.IsEmpty())
+	{
+		//Init at first use
+		static const FString MaterialPath(TEXT("CollisionTesterEditor/Material/MAT_SphereColor.MAT_SphereColor"));
+		BaseMaterial = LoadObject<UMaterial>(NULL, *MaterialPath, NULL, LOAD_None, NULL);
+
+		UMaterialInstanceDynamic* RedMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, NULL);
+		RedMaterial->SetVectorParameterValue(FName("Color"), FLinearColor::Red);
+		RedMaterial->SetScalarParameterValue(FName("Desaturation"), 0.6f);
+		MaterialMap.Emplace(FColor::Red, RedMaterial);
+
+		UMaterialInstanceDynamic* GreenMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, NULL);
+		GreenMaterial->SetVectorParameterValue(FName("Color"), FLinearColor::Green);
+		GreenMaterial->SetScalarParameterValue(FName("Desaturation"), 0.6f);
+		MaterialMap.Emplace(FColor::Green, GreenMaterial);
+
+		UMaterialInstanceDynamic* BlueMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, NULL);
+		BlueMaterial->SetVectorParameterValue(FName("Color"), FLinearColor::Blue);
+		BlueMaterial->SetScalarParameterValue(FName("Desaturation"), 0.6f);
+		MaterialMap.Emplace(FColor::Blue, BlueMaterial);
+	}
+
+	if (const UMaterialInstanceDynamic** Material = MaterialMap.Find(Color))
+	{
+		return *Material;
+	}
+
+	return nullptr;
+}*/
 
 #undef LOCTEXT_NAMESPACE
 	
